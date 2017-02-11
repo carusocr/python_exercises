@@ -1,0 +1,48 @@
+brute force method:
+
+given 2 nodes i and j, is there a path of length 1 between them? If yes, then distance = 1. If no, then increment by one and repeat until yes.
+
+Algo for this is:
+(n = number of nodes)
+for i in 1..n-1
+
+Brute force algorithms are often the first ones to try when solving a problem.
+
+Algorithm efficiency
+
+Brute force algorithms are often the first ones to try when solving a problem.
+
+1.8 Algorithm efficiency
+
+Main issue with brute force algorithm is that they're not efficient.
+
+- How to measure efficiency?
+    Measure by two metrics: time and space. How long and how much memory does it take?
+
+    - efficiency is a function of input size (BIG O!)
+
+    - input size of graph is nodes (n) and edges (m), then figure
+      out type of operations to be performed on them...could be function of n, or m,
+      or n and m combined (nm or n+m, etc etc)
+
+    - algos that work on a list or string will have input size equal to length of list
+      or string
+
+    - algorithms that work on numbers have input sizes of number of bits needed
+      to represent the input number (typically log p base 2)o
+
+
+k=1
+while k < |V| do
+  u? = i
+  u? = j
+  foreach Subset VC_V of size k-1 do
+    foreach permutation of u[0],....u[k-1] of the elements
+      IsPath = True
+      for l=0 to k-1 do
+        if {u[l],u[l+1]} != edge then
+          IsPath = False
+      if IsPath==True
+        return k
+    k+=1
+return infinity
