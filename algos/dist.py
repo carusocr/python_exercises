@@ -25,6 +25,6 @@ def in_degree_distribution(digraph):
       degree_dist[digraph[i]] += 1
   return degree_dist
 
-in_degs = compute_in_degrees(EX_GRAPH1)
+print compute_in_degrees(EX_GRAPH1)
 
 print in_degree_distribution(test_graph)
