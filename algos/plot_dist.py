@@ -5,6 +5,7 @@ normalized to sum to one by dividing each value by the total number of nodes.
 
 # general imports
 import urllib2
+import matplotlib.pyplot as plt
 
 # Set timeout for CodeSkulptor if necessary
 #import codeskulptor
@@ -70,4 +71,15 @@ def in_degree_distribution(digraph):
 citation_graph = load_graph(CITATION_URL)
 
 in_degs = compute_in_degrees(citation_graph)
-print in_degree_distribution(in_degs)
+degree_dist = in_degree_distribution(in_degs)
+print degree_dist
+filtered_dist = {x:y for x,y in degree_dist.items() if x != 0}
+x,y = zip(*filtered_dist.items())
+plt.xscale('log')
+plt.yscale('log')
+plt.title('Log/log Distribution of Physics Paper Citation Frequency')
+plt.plot(x, y, 'bo')
+plt.xlabel('Number of Citations')
+plt.ylabel('Fraction of Publications')
+plt.axis([0,10000,0.00001,1])
+plt.show()
