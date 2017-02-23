@@ -9,7 +9,7 @@ of DPA algorithm
 import random
 import matplotlib.pyplot as plt
 
-num_nodes = 27500
+num_nodes = 10000
 m = 13
 
 class DPATrial:
