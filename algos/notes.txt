@@ -1,0 +1,22 @@
+Asymptotic notations:
+
+- Three basic ones used:
+
+1. Upper bound of f(n) running time
+
+f(n) could be 1000 + 100n + 3n^2
+
+In asymptotic notation, when we have a function f(n) and want to generate a function
+g(n) that grows faster than f(n) - bounding it from above.
+
+We want a function g(n_ such that there exists two constants: c>0 and n(0)>0 where
+f(n) <= c*g(n) for every n greater than or equal to n0. n0 is the constant where every
+value of g(n) should be >= f(n).
+
+In this scenario we can say that f(n) = O(g(n))
+
+First notation is big O: upper bound.
+
+2. Lower bound of f(n) runtime is Ω: lower bound.
+
+3. f(n) sandwiched between c1*g(n) and c(2)*g(n) = theta(g(n))
