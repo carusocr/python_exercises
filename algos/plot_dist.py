@@ -75,6 +75,7 @@ degree_dist = in_degree_distribution(in_degs)
 print degree_dist
 filtered_dist = {x:y for x,y in degree_dist.items() if x != 0}
 x,y = zip(*filtered_dist.items())
+print (x,y)
 plt.xscale('log')
 plt.yscale('log')
 plt.title('Log/log Distribution of Physics Paper Citation Frequency')

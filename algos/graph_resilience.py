@@ -1,4 +1,4 @@
-import poc_queue
+#import poc_queue
 import random
 
 GRAPH0 = {0: set([1]),
@@ -20,6 +20,27 @@ GRAPH2 = {1: set([2, 4, 6, 8]),
           6: set([1, 3, 5, 7]),
           7: set([2, 4, 6, 8]),
           8: set([1, 3, 5, 7])}
+
+GRAPH3 = {0: set([]),
+          1: set([2]),
+          2: set([1]),
+          3: set([4]),
+          4: set([3])}
+
+GRAPH4 = {0: set([1, 2, 3, 4]),
+          1: set([0]),
+          2: set([0]),
+          3: set([0]),
+          4: set([0]),
+          5: set([6, 7]),
+          6: set([5]),
+          7: set([5])}
+
+GRAPH5 = {"dog": set(["cat"]),
+          "cat": set(["dog"]),
+          "monkey": set(["banana"]),
+          "banana": set(["monkey", "ape"]),
+          "ape": set(["banana"])}
 
 def bfs_visited(ugraph, start):
     '''
@@ -69,7 +90,13 @@ def largest_cc_size(ugraph):
     Takes the undirected graph ugraph and returns the 
     size of the largest connected component in ugraph.
     '''
-    pass
+    CC = []
+    remaining_nodes = ugraph.keys()
+    for i in range(len(remaining_nodes)):
+        node = remaining_nodes[i]
+        edges = bfs_visited(ugraph,node)
+        CC.append(edges)
+    return len(max(CC))
 
 def compute_resilience(ugraph, attack_order):
     '''
@@ -88,4 +115,5 @@ def compute_resilience(ugraph, attack_order):
 #largest_cc_size(alg_module2_graphs.GRAPH0) expected 4
 #print bfs_visited(GRAPH1,0)
 print cc_visited(GRAPH0)
+#print largest_cc_size(GRAPH3)
 #
