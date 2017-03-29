@@ -9,6 +9,9 @@ import random
 import time
 import math
 import matplotlib.pyplot as plt
+import dpa_plot as DPA
+import upa as UPA
+import timeit
 
 GRAPH1 = {0: set([1, 2, 3, 4]),
           1: set([0, 2, 3, 4]),
@@ -137,6 +140,80 @@ def targeted_order(ugraph):
 
         order.append(max_degree_node)
     return order
+
+def remove_node(ugraph, node):
+    '''Remove node from the graph. This also includes removal of the node
+    from its neighbors.'''
+    for neighbor in ugraph[node]:
+        ugraph[neighbor].remove(node)
+    del ugraph[node]
+
+def fast_targeted_order(ugraph):
+    ugraph = copy_graph(ugraph)
+    degree_sets = [set()] * len(ugraph)
+    for node, neighbors in ugraph.iteritems():
+        degree = len(neighbors)
+        degree_sets[degree].add(node)
+    order = []
+
+    for k in range(len(ugraph) - 1, -1, -1):
+        while degree_sets[k]:
+            u = degree_sets[k].pop()
+            for neighbor in ugraph[u]:
+                d = len(ugraph[neighbor])
+                degree_sets[d].remove(neighbor)
+                degree_sets[d - 1].add(neighbor)
+
+            order.append(u)
+            remove_node(ugraph, u)
+    return order
+
+def measure_targeted_order(n, m, func):
+    graph = make_upa_graph(n, m)
+    return timeit.timeit(lambda: func(graph), number=1)
+
+def make_er_graph(num_nodes, p):
+    '''make fully populated graph
+    nodes have random chance to be connected 
+    p < 1.0
+    '''
+    edges = dict()
+    for start_node in range(0,num_nodes):
+        edges[start_node] = set([])
+        for end_node in range(0,num_nodes):
+            edge_chance = random.random()
+            if start_node != end_node and edge_chance < p:
+                if end_node not in edges:
+                    edges[end_node] = set()
+                edges[start_node].add(end_node)
+                edges[end_node].add(start_node)
+    return edges
+
+def make_upa_graph(num_nodes, connections):
+    ugraph = dict()
+    # DRYing make_complete_graph...
+    for start_node in range(0,num_nodes):
+        ugraph[start_node] = set()
+        for end_node in range(0,num_nodes):
+            if start_node != end_node:
+                ugraph[start_node].add(end_node)
+    upa = UPA.UPATrial(connections)
+    for i in range(connections, num_nodes):
+      edges = upa.run_trial(connections)
+      ugraph[i] = edges
+      for edge in edges:
+        ugraph[edge].add(i)
+    return ugraph
+    
+    for new_node in xrange(exist_nodes, num_nodes):
+        total_in = prj1.compute_in_degrees(ugraph)
+        total_indegrees = 0
+        for node in total_in:
+            total_indegrees += total_in[node]
+        trial = UPATrial(total_indegrees)
+        to_connect = trial.run_trial(exist_nodes)
+        ugraph[new_node] = to_connect
+    return ugraph 
     
 def legend_example():
     """
@@ -183,14 +260,49 @@ def load_graph(graph_url):
 
     return answer_graph
 
-answer_graph = load_graph(NETWORK_URL)
-random_nodes = random_order(answer_graph)
-x = []
-y =  compute_resilience(answer_graph,random_nodes)
-for i in range(len(random_nodes)+1):
-  x.append(i)
-print len(x)
-print len(y)
-plt.plot(x, y)
-plt.show() 
+def generate_plots(order):
+  ag_1 = load_graph(NETWORK_URL)
+  ag_2 = make_er_graph(1239,0.005)
+  ag_3 = make_upa_graph(1239,2)
+  random_nodes1 = order(ag_1)
+  random_nodes2 = order(ag_2)
+  random_nodes3 = order(ag_3)
+  
+  x1 = []
+  x2 = []
+  x3 = []
+  y1 =  compute_resilience(ag_1,random_nodes1)
+  y2 =  compute_resilience(ag_2,random_nodes2)
+  y3 =  compute_resilience(ag_3,random_nodes3)
+  for i in range(len(ag_1)+1):
+    x1.append(i)
+  for i in range(len(ag_2)+1):
+    x2.append(i)
+  for i in range(len(ag_3)+1):
+    x3.append(i)
+  plt.xlabel("Nodes Removed")
+  plt.ylabel("Largest Connected Component")
+  plt.plot(x1, y1, label="network")
+  plt.plot(x2, y2,label="ER (p=0.005)")
+  plt.plot(x3, y3, label="UPA (m=2)")
+  plt.legend(loc='upper right')
+  plt.axis([0,1239,0,1239])
+  plt.show() 
+
+def question3():
+    xs = range(10, 1000, 10)
+    m = 5
+    ys_targeted = [measure_targeted_order(n, m, targeted_order) for n in xs]
+    ys_fast_targeted = [measure_targeted_order(n, m, fast_targeted_order) for n in xs]
+
+    plt.plot(xs, ys_targeted, '-r', label='targeted_order')
+    plt.plot(xs, ys_fast_targeted, '-b', label='fast_targeted_order')
+    plt.title('Targeted order functions performance (desktop Python)')
+    plt.xlabel('Number of nodes in the graph')
+    plt.ylabel('Execution time')
+    plt.legend(loc='upper left')
+    plt.tight_layout()
+    plt.show()
 #legend_example()
+generate_plots(random_order)
+generate_plots(targeted_order)

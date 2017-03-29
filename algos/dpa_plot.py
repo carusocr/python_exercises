@@ -115,7 +115,7 @@ def in_degree_distribution(digraph):
     degree_dist[i] = float(degree_dist[i]) / float(total_nodes)
   return degree_dist
 
-digraph = make_dpa_graph(m,num_nodes)
-in_degs = compute_in_degrees(digraph)
-degree_dist = in_degree_distribution(in_degs)
-make_plot(degree_dist)
+#digraph = make_dpa_graph(m,num_nodes)
+#in_degs = compute_in_degrees(digraph)
+#degree_dist = in_degree_distribution(in_degs)
+#make_plot(degree_dist)
