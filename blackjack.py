@@ -14,8 +14,9 @@ card_back = simplegui.load_image("http://storage.googleapis.com/codeskulptor-ass
 
 # initialize some useful global variables
 in_play = False
-outcome = ""
-score = 0
+outcome = "Hit, Stand, or Forfeit by redealing?"
+player_score = 0
+bet = 10
 deck = []
 
 # define globals for cards
@@ -77,7 +78,9 @@ class Hand:
         return sum
 
     def draw(self, canvas, pos):
-        pass
+        for card in self.cards:
+            card.draw(canvas, pos)
+            pos[0] += CARD_SIZE[0]
         
 # define deck class 
 class Deck:
@@ -98,7 +101,11 @@ class Deck:
 
 #define event handlers for buttons
 def deal():
-    global outcome, in_play, deck, dealer_hand, player_hand
+    global outcome, in_play, deck, dealer_hand, player_hand, player_score
+    if in_play:
+        player_score -= 1
+        in_play = False
+        outcome = "Forfeited! New game...hit or stand?"
     deck = Deck()
     deck.shuffle()
     dealer_hand = Hand()
@@ -111,16 +118,25 @@ def deal():
     print "Player hand:", player_hand
     #print dealer_hand.get_value()
     in_play = True
+    if dealer_hand.get_value() == 21:
+        outcome = "Dealer blackjack! You lose hard."
+        player_score -= 1
+        in_play = False
+    if outcome != "Forfeited! New game...hit or stand?" and outcome != "Dealer blackjack! You lose hard.":
+        outcome = "Hit, Stand, or Forfeit by redealing?"
+    
     
 
 def hit():
-    global in_play, player_hand
+    global in_play, player_hand, player_score, outcome
     if player_hand.get_value() < 21:
         if in_play == True:
             player_hand.add_card(deck.deal_card())
             print player_hand.get_value()
             if player_hand.get_value() > 21:
                 print "Busted!"
+                outcome = "You busted! New deal?"
+                player_score -= 1
                 in_play = False
                 
  
@@ -130,20 +146,26 @@ def hit():
        
 def stand():
     
-    global in_play
+    global in_play, player_score, outcome
     
     if in_play == False:
-        print "You've busted, dumbass!"
+        print "You can't stand, game is over!"
     else:
         while dealer_hand.get_value() < 17:
             print dealer_hand.get_value()
             dealer_hand.add_card(deck.deal_card())
             if dealer_hand.get_value() > 21:
-                print "Dealer busted! HA-ha."
-    if (dealer_hand.get_value() >= player_hand.get_value()) and dealer_hand.get_value() < 22:
-        print "You lost. Dealer had ", dealer_hand.get_value(), "and you had ", player_hand.get_value()
-    else:
-        print "You win! Dealer had ", dealer_hand.get_value(), "and you had ", player_hand.get_value()
+                outcome = "Dealer busted! HA-ha! New deal?"
+                in_play = False
+        if in_play:
+            if (dealer_hand.get_value() >= player_hand.get_value()) and dealer_hand.get_value() < 22:
+                player_score -= 1
+                in_play = False
+                outcome = "You lost. Dealer had " + str(dealer_hand.get_value()) + " and you had " + str(player_hand.get_value()) + ". New deal?"
+            else:
+                player_score += 1
+                in_play = False
+                outcome = "You win! Dealer had " + str(dealer_hand.get_value()) + " and you had " + str(player_hand.get_value()) + ". New deal?"
 
    
     # if hand is in play, repeatedly hit dealer until his hand has value 17 or more
@@ -152,9 +174,15 @@ def stand():
 
 # draw handler    
 def draw(canvas):
-    global player_hand, dealer_hand
+    global player_hand, dealer_hand, outcome
+    canvas.draw_text("Blackjack!", [220, 30], 30 ,"Black")
     # test to make sure that card.draw works, replace with your code below
-    dealer_hand.draw(canvas, [300,300])
+    dealer_hand.draw(canvas, [200,100])
+    player_hand.draw(canvas, [200,300])
+    if in_play:
+        canvas.draw_image(card_back, CARD_BACK_CENTER, CARD_BACK_SIZE, (236,148), CARD_BACK_SIZE)
+    canvas.draw_text(outcome, [60, 60], 20 ,"White")
+    canvas.draw_text(("Player winnings: $" + str(player_score*bet)),[20,450],20, "White")
 
 # initialization frame
 frame = simplegui.create_frame("Blackjack", 600, 600)
