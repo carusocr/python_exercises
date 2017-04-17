@@ -157,6 +157,7 @@ def stand():
             if dealer_hand.get_value() > 21:
                 outcome = "Dealer busted! HA-ha! New deal?"
                 in_play = False
+                player_score += 1
         if in_play:
             if (dealer_hand.get_value() >= player_hand.get_value()) and dealer_hand.get_value() < 22:
                 player_score -= 1
@@ -182,7 +183,12 @@ def draw(canvas):
     if in_play:
         canvas.draw_image(card_back, CARD_BACK_CENTER, CARD_BACK_SIZE, (236,148), CARD_BACK_SIZE)
     canvas.draw_text(outcome, [60, 60], 20 ,"White")
-    canvas.draw_text(("Player winnings: $" + str(player_score*bet)),[20,450],20, "White")
+    #canvas.draw_text(("Player winnings: $" + str(player_score*bet)),[20,450],20, "White")
+    if player_score < 0:
+        canvas.draw_text(("You owe your loan shark $" + str(-player_score*bet)),[20,450],20, "White")
+    else:
+        canvas.draw_text(("Player winnings: $" + str(player_score*bet)),[20,450],20, "White")
+                         
 
 # initialization frame
 frame = simplegui.create_frame("Blackjack", 600, 600)
