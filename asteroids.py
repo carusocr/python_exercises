@@ -182,26 +182,33 @@ def draw(canvas):
     canvas.draw_text("Score: " + str(score), (WIDTH-140,20), 18, "White")
     # draw ship and sprites
     my_ship.draw(canvas)
-    a_rock.draw(canvas)
     a_missile.draw(canvas)
     
     # update ship and sprites
     my_ship.update()
-    a_rock.update()
+    process_sprite_group(rock_group, canvas)
     a_missile.update()
             
 # timer handler that spawns a rock    
 def rock_spawner():
-    global a_rock
+    global rock_group
     # generate a new asteroid each second. Randomly choose velocity,
     # position, and angular velocity
+    # limit asteroids to 12 max
     vel1 = random.randrange(5) * random.choice([-1,1])
     vel2 = random.randrange(5) * random.choice([-1,1])
     ang_vel = random.randrange(10)
     pos1 = random.randrange(HEIGHT)
     pos2 = random.randrange(WIDTH)
-    a_rock = Sprite([pos1, pos2], [vel1, vel2], 0, 0.07*random.choice([-1,1]), asteroid_image, asteroid_info)
-
+    if len(rock_group) <= 12:
+        a_rock = Sprite([pos1, pos2], [vel1, vel2], 0, 0.07*random.choice([-1,1]), asteroid_image, asteroid_info)
+        rock_group.add(a_rock)
+        
+def process_sprite_group(sprite_group, canvas):
+    for sprite in sprite_group:
+        sprite.draw(canvas)
+        sprite.update()
+    
 def keydown(key):
     vel = 0.1
     if key == simplegui.KEY_MAP['left']:
@@ -229,7 +236,8 @@ frame = simplegui.create_frame("Asteroids", WIDTH, HEIGHT)
 
 # initialize ship and two sprites
 my_ship = Ship([WIDTH / 2, HEIGHT / 2], [0, 0], 0, ship_image, ship_info)
-a_rock = Sprite([WIDTH / 3, HEIGHT / 3], [5, 5], 0, 0.07, asteroid_image, asteroid_info)
+rock_group = set()
+#a_rock = Sprite([WIDTH / 3, HEIGHT / 3], [5, 5], 0, 0.07, asteroid_image, asteroid_info)
 a_missile = Sprite([2 * WIDTH / 3, 2 * HEIGHT / 3], [0,0], 0, 0, missile_image, missile_info)
 
 # register handlers
@@ -242,3 +250,4 @@ timer = simplegui.create_timer(1000.0, rock_spawner)
 # get things rolling
 timer.start()
 frame.start()
+
