@@ -10,6 +10,9 @@ score = 0
 lives = 3
 time = 0
 started = False
+rock_group = set()
+missile_group = set()
+explosion_group = set()
 
 class ImageInfo:
     def __init__(self, center, size, radius = 0, lifespan = None, animated = False):
@@ -161,11 +164,20 @@ class Sprite:
             sound.play()
    
     def draw(self, canvas):
-        canvas.draw_image(self.image, self.image_center, self.image_size, self.pos, self.image_size, self.angle)
+        if self.animated:
+            # if it's an explosion, change the index
+            size0 = self.image_size[0]
+            size1 = self.image_size[1]
+            explosion_index = [self.age % size0, (self.age // size0) % size1]
+            canvas.draw_image(explosion_image, 
+                    [self.image_center[0] + explosion_index[0] * size0, 
+                     self.image_center[1] + explosion_index[1] * size1], 
+                     self.image_size, self.pos, self.image_size)
+        else:
+            canvas.draw_image(self.image, self.image_center, self.image_size, self.pos, self.image_size, self.angle)
     
     def update(self):
         self.angle += self.angle_vel
-        # update ship's position based on velocity
         self.pos[0] = (self.pos[0] + self.vel[0]) % WIDTH
         self.pos[1] = (self.pos[1] + self.vel[1]) % HEIGHT
         self.age += 1
@@ -179,13 +191,17 @@ class Sprite:
         return False
 
 def click(pos):
-    global started
+    global started, my_ship, lives, score
     center = [WIDTH / 2, HEIGHT / 2]
     size = splash_info.get_size()
     inwidth = (center[0] - size[0] / 2) < pos[0] < (center[0] + size[0] / 2)
     inheight = (center[1] - size[1] / 2) < pos[1] < (center[1] + size[1] / 2)
     if (not started) and inwidth and inheight:
+        my_ship = Ship([WIDTH / 2, HEIGHT / 2], [0, 0], 0, ship_image, ship_info)
         started = True
+        lives = 3
+        score = 0
+        soundtrack.play()
            
 def draw(canvas):
     global time, lives, score, started
@@ -207,6 +223,7 @@ def draw(canvas):
     my_ship.update()
     process_sprite_group(rock_group, canvas)
     process_sprite_group(missile_group, canvas)
+    process_sprite_group(explosion_group, canvas)
     
     # ship hit any rocks?
     if group_collide(rock_group, my_ship):
@@ -214,8 +231,8 @@ def draw(canvas):
         if lives <= 0:
             started = False
             rock_group.difference_update(rock_group)
-            my_ship.draw(canvas)
-
+            soundtrack.pause()
+            soundtrack.rewind()
         
     # missiles hit any rocks? 
     score += group_group_collide(missile_group, rock_group)
@@ -242,7 +259,9 @@ def rock_spawner():
     pos2 = random.randrange(WIDTH)
     if len(rock_group) <= 12:
         a_rock = Sprite([pos1, pos2], [vel1, vel2], 0, 0.07*random.choice([-1,1]), asteroid_image, asteroid_info)
-        rock_group.add(a_rock)
+        if dist(a_rock.pos, my_ship.pos) > (a_rock.radius + my_ship.radius):
+            rock_group.add(a_rock)
+        #rock_group.add(a_rock)
         
 def process_sprite_group(sprite_group, canvas):
     # helper function to process sprites
@@ -255,10 +274,13 @@ def process_sprite_group(sprite_group, canvas):
                     
 def group_collide(sprite_group, other_object):
     # check if any object in group collide with other object
-    global lives, score
+    global lives, score, explosion_group
     remove_set = set()
     for sprite in sprite_group:
         if sprite.collide(other_object):
+            #add explosion
+            an_explosion = Sprite(other_object.pos, [0,0], 0, 0, explosion_image, explosion_info, explosion_sound)
+            explosion_group.add(an_explosion)
             remove_set.add(sprite)
     sprite_group.difference_update(remove_set)
     return len(remove_set) != 0
@@ -304,8 +326,7 @@ frame = simplegui.create_frame("Asteroids", WIDTH, HEIGHT)
 
 # initialize ship and two sprites
 my_ship = Ship([WIDTH / 2, HEIGHT / 2], [0, 0], 0, ship_image, ship_info)
-rock_group = set()
-missile_group = set()
+
 
 # register handlers
 frame.set_mouseclick_handler(click)
@@ -318,4 +339,3 @@ timer = simplegui.create_timer(1000.0, rock_spawner)
 # get things rolling
 timer.start()
 frame.start()
-
