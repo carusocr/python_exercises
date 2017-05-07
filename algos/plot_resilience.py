@@ -38,6 +38,16 @@ def delete_node(ugraph, node):
     for neighbor in neighbors:
         ugraph[neighbor].remove(node)
 
+def make_complete_graph(num_nodes):
+    '''make fully populated graph'''
+    edges = dict()
+    for start_node in range(0,num_nodes):
+        edges[start_node] = set()
+        for end_node in range(0,num_nodes):
+            if start_node != end_node:
+                edges[start_node].add(end_node)
+    return edges
+
 def random_order(ugraph):
     """
     Return a list of nodes in a graph in random order.
@@ -136,6 +146,9 @@ def targeted_order(ugraph):
         neighbors = new_graph[max_degree_node]
         new_graph.pop(max_degree_node)
         for neighbor in neighbors:
+            #print new_graph[neighbor]
+            #print "Neighbor: " , neighbor
+            #print "Max degree node: " , max_degree_node
             new_graph[neighbor].remove(max_degree_node)
 
         order.append(max_degree_node)
@@ -172,31 +185,34 @@ def measure_targeted_order(n, m, func):
     graph = make_upa_graph(n, m)
     return timeit.timeit(lambda: func(graph), number=1)
 
-def make_er_graph(num_nodes, p):
-    '''make fully populated graph
-    nodes have random chance to be connected 
-    p < 1.0
-    '''
-    edges = dict()
-    for start_node in range(0,num_nodes):
-        edges[start_node] = set([])
-        for end_node in range(0,num_nodes):
-            edge_chance = random.random()
-            if start_node != end_node and edge_chance < p:
-                if end_node not in edges:
-                    edges[end_node] = set()
-                edges[start_node].add(end_node)
-                edges[end_node].add(start_node)
-    return edges
+def make_er_graph(n, p):
+    """input: number of nodes n, probability p
+    """
+    graph = {x: set([]) for x in range(n)}
+    for node in range(n):
+      for edge in range(n):
+        a = random.random()
+        if a < p and node != edge:
+            graph[node].add(edge)
+            graph[edge].add(node)
+    return graph
+
+def compute_in_degrees(digraph):
+    '''compute in_degrees of a given graph'''
+    # need to add handling for zero!
+    in_degrees = dict()
+    for start_node in digraph:
+        for end_node in digraph[start_node]:
+            if end_node in in_degrees:
+                in_degrees[end_node] += 1
+            else:
+                in_degrees[end_node] = 1
+        if start_node not in in_degrees:
+            in_degrees[start_node] = 0
+    return in_degrees
 
 def make_upa_graph(num_nodes, connections):
-    ugraph = dict()
-    # DRYing make_complete_graph...
-    for start_node in range(0,num_nodes):
-        ugraph[start_node] = set()
-        for end_node in range(0,num_nodes):
-            if start_node != end_node:
-                ugraph[start_node].add(end_node)
+    ugraph = make_complete_graph(connections)
     upa = UPA.UPATrial(connections)
     for i in range(connections, num_nodes):
       edges = upa.run_trial(connections)
@@ -204,16 +220,6 @@ def make_upa_graph(num_nodes, connections):
       for edge in edges:
         ugraph[edge].add(i)
     return ugraph
-    
-    for new_node in xrange(exist_nodes, num_nodes):
-        total_in = prj1.compute_in_degrees(ugraph)
-        total_indegrees = 0
-        for node in total_in:
-            total_indegrees += total_in[node]
-        trial = UPATrial(total_indegrees)
-        to_connect = trial.run_trial(exist_nodes)
-        ugraph[new_node] = to_connect
-    return ugraph 
     
 def legend_example():
     """
@@ -262,8 +268,13 @@ def load_graph(graph_url):
 
 def generate_plots(order):
   ag_1 = load_graph(NETWORK_URL)
-  ag_2 = make_er_graph(1239,0.005)
-  ag_3 = make_upa_graph(1239,2)
+  ag_2 = make_er_graph(1239,.005)
+  ag_3 = make_upa_graph(1239,5)
+  print len(ag_1)
+  print len(ag_2)
+  print len(ag_3)
+  print type(ag_1)
+  print type(ag_2)
   random_nodes1 = order(ag_1)
   random_nodes2 = order(ag_2)
   random_nodes3 = order(ag_3)
@@ -304,5 +315,5 @@ def question3():
     plt.tight_layout()
     plt.show()
 #legend_example()
-generate_plots(random_order)
+#generate_plots(random_order)
 generate_plots(targeted_order)
