@@ -162,23 +162,23 @@ def remove_node(ugraph, node):
     del ugraph[node]
 
 def fast_targeted_order(ugraph):
-    ugraph = copy_graph(ugraph)
-    degree_sets = [set()] * len(ugraph)
-    for node, neighbors in ugraph.iteritems():
+    new_graph = copy_graph(ugraph)
+    degree_sets = [set()] * len(new_graph)
+    for node, neighbors in new_graph.iteritems():
         degree = len(neighbors)
         degree_sets[degree].add(node)
     order = []
 
-    for k in range(len(ugraph) - 1, -1, -1):
+    for k in range(len(new_graph) - 1, -1, -1):
         while degree_sets[k]:
             u = degree_sets[k].pop()
-            for neighbor in ugraph[u]:
-                d = len(ugraph[neighbor])
+            for neighbor in new_graph[u]:
+                d = len(new_graph[neighbor])
                 degree_sets[d].remove(neighbor)
                 degree_sets[d - 1].add(neighbor)
 
             order.append(u)
-            remove_node(ugraph, u)
+            remove_node(new_graph, u)
     return order
 
 def measure_targeted_order(n, m, func):
@@ -188,7 +188,7 @@ def measure_targeted_order(n, m, func):
 def make_er_graph(n, p):
     """input: number of nodes n, probability p
     """
-    graph = {x: set([]) for x in range(n)}
+    graph = {x: set() for x in range(n)}
     for node in range(n):
       for edge in range(n):
         a = random.random()
@@ -266,15 +266,10 @@ def load_graph(graph_url):
 
     return answer_graph
 
-def generate_plots(order):
+def generate_plots(order,title):
   ag_1 = load_graph(NETWORK_URL)
-  ag_2 = make_er_graph(1239,.005)
-  ag_3 = make_upa_graph(1239,5)
-  print len(ag_1)
-  print len(ag_2)
-  print len(ag_3)
-  print type(ag_1)
-  print type(ag_2)
+  ag_2 = make_er_graph(1239,.002)
+  ag_3 = make_upa_graph(1239,2)
   random_nodes1 = order(ag_1)
   random_nodes2 = order(ag_2)
   random_nodes3 = order(ag_3)
@@ -293,14 +288,15 @@ def generate_plots(order):
     x3.append(i)
   plt.xlabel("Nodes Removed")
   plt.ylabel("Largest Connected Component")
+  plt.title(title)
   plt.plot(x1, y1, label="network")
   plt.plot(x2, y2,label="ER (p=0.005)")
-  plt.plot(x3, y3, label="UPA (m=2)")
+  plt.plot(x3, y3, label="UPA (m=5)")
   plt.legend(loc='upper right')
-  plt.axis([0,1239,0,1239])
+  plt.axis([0,1400,0,1400])
   plt.show() 
 
-def question3():
+def plot_performance():
     xs = range(10, 1000, 10)
     m = 5
     ys_targeted = [measure_targeted_order(n, m, targeted_order) for n in xs]
@@ -315,5 +311,7 @@ def question3():
     plt.tight_layout()
     plt.show()
 #legend_example()
-#generate_plots(random_order)
-generate_plots(targeted_order)
+#generate_plots(random_order,"Random Attack Order Resilience")
+generate_plots(targeted_order,"Targeted Attack Order Resilience")
+#generate_plots(fast_targeted_order, "Fast Targeted)
+#question3() 
