@@ -39,7 +39,23 @@ def slow_closest_pair(cluster_list):
     
     Output: tuple of the form (dist, idx1, idx2) where the centers of the clusters
     cluster_list[idx1] and cluster_list[idx2] have minimum distance dist.       
+
+
+    Pseudo-code:
+
+    dist = float("inf")
+    idx1 = -1
+    idx2 = -1
+    for i in cluster_list:
+      for j in cluster_list:
+        # next if i == j
+        # tmpdist =  dist between cluster_list[i] and cluster_list[j]
+        # (dist, idx1, idx2) = min{(dist, idx1, idx2,),(tmpdist, i, j)} # min compares first element of each tuple
+
+    return (dist, idx1, idx2)
     """
+
+    
     
     return ()
 
@@ -70,6 +86,20 @@ def closest_pair_strip(cluster_list, horiz_center, half_width):
 
     Output: tuple of the form (dist, idx1, idx2) where the centers of the clusters
     cluster_list[idx1] and cluster_list[idx2] lie in the strip and have minimum distance dist.       
+
+
+    Let S be a list of the set {i: |xi - mid| < w}
+    Sort the indices in S in nondecreasing order of the vertical (y) coordinates of their associated points.
+    k = |S|  <-- || means number of elements in item, not absolute value!
+    dist = float("inf")
+    idx1 = -1
+    idx2 = -1
+    for i in range(0,k-2):
+      for j in range (i+1,min(i+3,k-1)):
+        tmpdist = dist between S[i] and S[p]
+        (dist, idx1, idx2) = min{(dist, idx1, idx2),(tmpdist, S[i], S[j])}
+
+    return (dist, idx1, idx2)
     """
 
     return ()
