@@ -70,6 +70,23 @@ def fast_closest_pair(cluster_list):
     
     Output: tuple of the form (dist, idx1, idx2) where the centers of the clusters
     cluster_list[idx1] and cluster_list[idx2] have minimum distance dist.       
+
+    ***NOTE*** To sort clusters by vert/hori positions of cluster centers:
+    cluster_list.sort(key = lambda cluster: cluster.vert_center())
+
+    n = len(cluster_list)
+    if n <= 3:
+      (dist, idx1, idx2) = slow_closest_pair(cluster_list)
+    else:
+      m = math.floor(n/2)
+      #populate left and right lists with halves of cluster_list
+      (ldist, lidx1, lidx2) = fast_closest_pair(left_cluster_list)
+      (rdist, ridx1, ridx2) = fast_closest_pair(right_cluster_list)
+      (dist, idx1, idx2) = min((ldist,lidx1,lidx2),(rdist,ridx1+m,ridx2+m))
+      mid = (xm-1 + xm)/2
+      (dist, idx1, idx2) = min(dist, idx1, idx2), closest_pair_strip(cluster_list, mid, dist)
+    return (dist, idx1, idx2)
+      
     """
     
     return ()
