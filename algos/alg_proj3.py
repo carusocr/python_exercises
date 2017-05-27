@@ -39,25 +39,18 @@ def slow_closest_pair(cluster_list):
     
     Output: tuple of the form (dist, idx1, idx2) where the centers of the clusters
     cluster_list[idx1] and cluster_list[idx2] have minimum distance dist.       
-
-
-    Pseudo-code:
-
+    """
     dist = float("inf")
     idx1 = -1
     idx2 = -1
-    for i in cluster_list:
-      for j in cluster_list:
-        # next if i == j
-        # tmpdist =  dist between cluster_list[i] and cluster_list[j]
-        # (dist, idx1, idx2) = min{(dist, idx1, idx2,),(tmpdist, i, j)} # min compares first element of each tuple
-
+    for i in range(0,len(cluster_list)):
+        for j in range(0,len(cluster_list)):
+            if i == j:
+                continue
+            tmpdist = cluster_list[i].distance(cluster_list[j])
+            (dist, idx1, idx2) = min((dist, idx1, idx2),(tmpdist, i, j))
+    
     return (dist, idx1, idx2)
-    """
-
-    
-    
-    return ()
 
 
 
@@ -70,23 +63,6 @@ def fast_closest_pair(cluster_list):
     
     Output: tuple of the form (dist, idx1, idx2) where the centers of the clusters
     cluster_list[idx1] and cluster_list[idx2] have minimum distance dist.       
-
-    ***NOTE*** To sort clusters by vert/hori positions of cluster centers:
-    cluster_list.sort(key = lambda cluster: cluster.vert_center())
-
-    n = len(cluster_list)
-    if n <= 3:
-      (dist, idx1, idx2) = slow_closest_pair(cluster_list)
-    else:
-      m = math.floor(n/2)
-      #populate left and right lists with halves of cluster_list
-      (ldist, lidx1, lidx2) = fast_closest_pair(left_cluster_list)
-      (rdist, ridx1, ridx2) = fast_closest_pair(right_cluster_list)
-      (dist, idx1, idx2) = min((ldist,lidx1,lidx2),(rdist,ridx1+m,ridx2+m))
-      mid = (xm-1 + xm)/2
-      (dist, idx1, idx2) = min(dist, idx1, idx2), closest_pair_strip(cluster_list, mid, dist)
-    return (dist, idx1, idx2)
-      
     """
     
     return ()
@@ -103,20 +79,6 @@ def closest_pair_strip(cluster_list, horiz_center, half_width):
 
     Output: tuple of the form (dist, idx1, idx2) where the centers of the clusters
     cluster_list[idx1] and cluster_list[idx2] lie in the strip and have minimum distance dist.       
-
-
-    Let S be a list of the set {i: |xi - mid| < w}
-    Sort the indices in S in nondecreasing order of the vertical (y) coordinates of their associated points.
-    k = |S|  <-- || means number of elements in item, not absolute value!
-    dist = float("inf")
-    idx1 = -1
-    idx2 = -1
-    for i in range(0,k-2):
-      for j in range (i+1,min(i+3,k-1)):
-        tmpdist = dist between S[i] and S[p]
-        (dist, idx1, idx2) = min{(dist, idx1, idx2),(tmpdist, S[i], S[j])}
-
-    return (dist, idx1, idx2)
     """
 
     return ()
@@ -156,4 +118,4 @@ def kmeans_clustering(cluster_list, num_clusters, num_iterations):
             
     return []
 
-
+#slow_closest_pair([alg_cluster.Cluster(set([]), 0, 0, 1, 0), alg_cluster.Cluster(set([]), 1, 0, 1, 0)])
