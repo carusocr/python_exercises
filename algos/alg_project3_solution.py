@@ -20,9 +20,13 @@ def plot_performance():
   xs = range(2, 200)
   scp = [timeit.timeit(lambda: measure_performance(n, slow_closest_pair),number=1) for n in xs]
   fcp = [timeit.Timer(lambda: measure_performance(n, fast_closest_pair)).timeit(number=1) for n in xs]
-  plt.plot(xs, scp, '-r', label='sloooow')
-  plt.plot(xs, fcp, '-b', label='FAST')
+  plt.plot(xs, scp, '-r', label='Slow Closest Pair')
+  plt.plot(xs, fcp, '-b', label='Fast Closest Pair')
+  plt.xlabel('Number of Clusters')
+  plt.ylabel('Execution time')
+  plt.legend(loc='upper left')
+  plt.title('Comparison of execution time for fast vs. slow closest pair (desktop Python)')
   plt.tight_layout()
   plt.show()
   
-plot_performance()
+#plot_performance()

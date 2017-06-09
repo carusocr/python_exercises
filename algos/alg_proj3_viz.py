@@ -14,10 +14,12 @@ import math
 import random
 import urllib2
 import alg_cluster
+import matplotlib.pyplot as plt
 
 # conditional imports
 if DESKTOP:
     import alg_project3_solution      # desktop project solution
+    import alg_proj3
     import alg_clusters_matplotlib
 else:
     #import userXX_XXXXXXXX as alg_project3_solution   # CodeSkulptor project solution
@@ -85,6 +87,50 @@ def sequential_clustering(singleton_list, num_clusters):
 # Code to load cancer data, compute a clustering and 
 # visualize the results
 
+def compute_distortion(cluster_list,data_table):
+  distortion = 0
+  for i in cluster_list:
+    distortion += i.cluster_error(data_table)
+  return distortion
+
+def plot_clustering_quality():
+
+    # Data 111 county
+    data_table = load_data_table(DATA_896_URL)
+    cluster_list = []
+    for line in data_table:
+        cluster_list.append(alg_cluster.Cluster(set([line[0]]), line[1], line[2], line[3], line[4]))
+    
+    ## point_h, point_k
+    points_h = []
+    points_k = []
+    cluster_hier = [cluster.copy() for cluster in cluster_list]
+    xs = range(20, 5, -1)
+    for i in xs:
+        cluster_h = alg_proj3.hierarchical_clustering(cluster_hier, i)
+        cluster_k = alg_proj3.kmeans_clustering(cluster_list, i, 5)
+        
+        distortion_h = compute_distortion(cluster_h, data_table)
+        print distortion_h
+        distortion_k = compute_distortion(cluster_k, data_table)
+        print distortion_k
+
+        points_h.append(distortion_h)
+        points_k.append(distortion_k)
+
+    print points_h
+    print points_k
+    plt.cla()
+    plt.plot(xs, points_h, '-r', label= 'hierarchical')
+    plt.plot(xs, points_k, '-b', label = 'k-means')
+    plt.title("Distortion Comparison, 896 County Set")
+    plt.xlabel("Number of Output Clusters")
+    plt.ylabel("Distortion")
+    plt.legend(loc='upper right')
+    plt.ylim(ymin=0)
+    #plt.tight_layout()
+    plt.show()
+
 
 def run_example():
     """
@@ -93,29 +139,37 @@ def run_example():
 
     Set DESKTOP = True/False to use either matplotlib or simplegui
     """
-    data_table = load_data_table(DATA_3108_URL)
+    data_table = load_data_table(DATA_111_URL)
     
     singleton_list = []
     for line in data_table:
         singleton_list.append(alg_cluster.Cluster(set([line[0]]), line[1], line[2], line[3], line[4]))
         
-    cluster_list = sequential_clustering(singleton_list, 15)  
-    print "Displaying", len(cluster_list), "sequential clusters"
+    #cluster_list = sequential_clustering(singleton_list, 15)  
+    #print "Displaying", len(cluster_list), "sequential clusters"
 
-    #cluster_list = alg_project3_solution.hierarchical_clustering(singleton_list, 9)
-    #print "Displaying", len(cluster_list), "hierarchical clusters"
+    cluster_list = alg_proj3.hierarchical_clustering(singleton_list, 9)
+    print "Displaying", len(cluster_list), "hierarchical clusters"
 
     #cluster_list = alg_project3_solution.kmeans_clustering(singleton_list, 9, 5) 
     #print "Displaying", len(cluster_list), "k-means clusters"
 
+    print compute_distortion(cluster_list,data_table)
+    #distortion of k_means on set of 111: 2.71254226924e+11
+    #distortion of hierarchical: 1.75163886916e+11
+
             
     # draw the clusters using matplotlib or simplegui
     if DESKTOP:
-        alg_clusters_matplotlib.plot_clusters(data_table, cluster_list, False)
-        #alg_clusters_matplotlib.plot_clusters(data_table, cluster_list, True)  #add cluster centers
+        #pass
+        #alg_clusters_matplotlib.plot_clusters(data_table, cluster_list, False)
+        alg_clusters_matplotlib.plot_clusters(data_table, cluster_list, True)  #add cluster centers
     else:
-        alg_clusters_simplegui.PlotClusters(data_table, cluster_list)   # use toggle in GUI to add cluster centers
+        pass
+        #alg_clusters_simplegui.PlotClusters(data_table, cluster_list)   # use toggle in GUI to add cluster centers
     
 run_example()
+#question10(DATA_111_URL)
+#plot_clustering_quality()
 
 
