@@ -42,9 +42,9 @@ def bfs(graph, start, end):
     if last_node == end:
       return path 
     else:
-    for node in graph[last_node]:
-      if node not in visited:
-        visited.add(node)
-        q.put(path + [node])
+      for node in graph[last_node]:
+        if node not in visited:
+          visited.add(node)
+          q.put(path + [node])
 
-print bfs(graph, 'A', 'F')
+#print bfs(graph, 'A', 'F')
